@@ -1,0 +1,25 @@
+## TODO ##
+
+--------------------------------------------------------------------------------
+
+GENERAL:
+[ ] - Determiner la communication entre le microcontroleur et la carte mere.
+[ ] - Determiner les messages.
+[ ] - Determiner si plusieurs classes Module ou une classe Module avec plusieurs
+        drivers associe.
+
+--------------------------------------------------------------------------------
+
+STM32:
+
+[ ] - Determiner les driveurs à développer.
+[ ] - Determiner les différents attribut de chaque classe.
+[ ] - Developper les méthodes Update de chaque classe.
+
+--------------------------------------------------------------------------------
+
+ARDUINO:
+
+[ ] - Determiner les driveurs à développer.
+[ ] - Determiner les différents attribut de chaque classe.
+[ ] - Developper les méthodes Update de chaque classe.

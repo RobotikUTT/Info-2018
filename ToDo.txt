@@ -1,0 +1,101 @@
+
+                   +-------------+
+                   |             |
+                   |     BBB     |
+                   |             |
+                   +------X------+
+                          X     CAN
+       XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+       X                  X                 X
++------X------+    +------X------+   +------X------+
+|             |    |             |   |             |
+|   ARDUINO   |    |    LIDAR    |   |    STM32    |
+|             |    |             |   |             |
+|             |    |             |   |             |
++------+------+    +-------------+   +---+------^--+
+       |                                 |      |
+       |                                 |      |
+       v                                 v      +
+  Actionneurs                         Moteurs  Senseur
+
+
+3 parties pour le code:
+  - Code arduino
+  - Code STM32
+  - Code BeagleBone Black (BBB)
+
+
+ARDUINO:
+
+  Le code permettra de gérer les différents controlleurs/ actionneur.
+
+  STRUCTURE:
+
+          Interface   Verification     Modules     Get Status
+          +------+      +------+      +------+     +------+
+In        |      |      |      | Get  |      | Get |      |
++--------->      |Get   |      <------+      <-----+      |
+          |      <------+      |      +------+     |      |
+Out       |      |      |      |      +------+     |      |
+<---------+      |      |      | Get  |      | Get |      |
+          |      |      |      <------+      <-----+      |
+          +---^--+      +------+      +------+     +---+--+
+              |                                        |
+              |           Generate msg                 |
+              +----------------------------------------+
+
+        Chaque réctangle est une classe.
+
+        Le code sera fait sur un micro controlleur, donc on exécutera la fonction
+        update de chaque classe, de l'interface, au Get Status.
+
+        Les access materiels seront dans les modules. Chaque module aura sa machine
+        à états.
+
+STM32:
+
+  Le code permettra de gérer les moteurs et l'Asservissement.
+
+  STRUCTURE:
+
+          Interface   Verification     Modules     Get Status
+          +------+      +------+      +------+     +------+
+In        |      |      |      | Get  |      | Get |      |
++--------->      |Get   |      <------+      <-----+      |
+          |      <------+      |      +------+     |      |
+Out       |      |      |      |      +------+     |      |
+<---------+      |      |      | Get  |      | Get |      |
+          |      |      |      <------+      <-----+      |
+          +---^--+      +------+      +------+     +---+--+
+              |                                        |
+              |           Generate msg                 |
+              +----------------------------------------+
+
+        Chaque réctangle est une classe.
+
+        Le code sera fait sur un micro controlleur, donc on exécutera la fonction
+        update de chaque classe, de l'interface, au Get Status.
+
+
+BBB:
+
+  Le code gerera tout les gros calcule
+
+  Entré données:
+    - Roues codeuse
+    - Lidar (données process)
+    - télémetre laser/SONAR
+    - slider de coté
+    - bouton départ
+
+
+    Partie du code (à détailler):
+      - prise de décision
+      - Odométrie
+      - Pathfinding
+
+
+    idée:
+      - Avoir un noeud qui "écoute" le bouton départ et le slider de coté avant le départ du robot.
+        Lors que le bouton est désactivé, le noeud change une variable global, lance un timer et s'arrete.
+        Le timer permet d'arréter le robot dans X s en changeant la variable globale.

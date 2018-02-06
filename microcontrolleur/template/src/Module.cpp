@@ -6,23 +6,23 @@
 
 //include msg
 
-Module* module_instance_ptr = 0;
+Module* g_module_instance_ptr = 0;
 
 Module::Module(){
 }
 
 Module::~Module(){
-  delete module_instance_ptr;
+  delete g_module_instance_ptr;
 }
 
 void Module::CreateSingleton(){
   if (module_instance_ptr == 0){
-    module_instance_ptr = new Module();
+    g_module_instance_ptr = new Module();
   }
 }
 
 void Module::Update(){
-  std::cout << "Module: " << module_instance_ptr << std::endl;
-  verification_instance_ptr->Update();
+  std::cout << "Module: " << g_module_instance_ptr << std::endl;
+  g_verification_instance_ptr->Update();
 
 }

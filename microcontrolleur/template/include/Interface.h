@@ -12,6 +12,6 @@ class Interface{
     void Update();
 
 };
-extern Interface* interface_instance_ptr;
+extern Interface* g_interface_instance_ptr;
 
 #endif

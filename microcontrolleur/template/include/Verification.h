@@ -15,6 +15,6 @@ class Verification{
     ~Verification();
     void Update();
 };
-extern Verification* verification_instance_ptr;
+extern Verification* g_verification_instance_ptr;
 
 #endif

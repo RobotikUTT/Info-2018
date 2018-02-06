@@ -17,6 +17,6 @@ class Watcher{
     ~Watcher();
     void Update();
 };
-extern Watcher* watcher_instance_ptr;
+extern Watcher* g_watcher_instance_ptr;
 
 #endif

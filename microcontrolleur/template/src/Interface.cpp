@@ -7,21 +7,21 @@
 //include msg
 
 
-Interface* interface_instance_ptr = 0;
+Interface* g_interface_instance_ptr = 0;
 
 Interface::Interface(){
 }
 
 Interface::~Interface(){
-  delete interface_instance_ptr;
+  delete g_interface_instance_ptr;
 }
 
 void Interface::CreateSingleton(){
-  if (interface_instance_ptr == 0){
-    interface_instance_ptr = new Interface();
+  if (g_interface_instance_ptr == 0){
+    g_interface_instance_ptr = new Interface();
   }
 }
 
 void Interface::Update(){
-  std::cout << "Interface: " << interface_instance_ptr  << std::endl;
+  std::cout << "Interface: " << g_interface_instance_ptr  << std::endl;
 }

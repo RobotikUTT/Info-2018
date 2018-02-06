@@ -6,22 +6,22 @@
 
 //include msg
 
-Verification* verification_instance_ptr = 0;
+Verification* g_verification_instance_ptr = 0;
 
 
 Verification::Verification(){
 }
 
 Verification::~Verification(){
-  delete verification_instance_ptr;
+  delete g_verification_instance_ptr;
 }
 
 void Verification::CreateSingleton(){
-  if (verification_instance_ptr == 0){
-    verification_instance_ptr = new Verification();
+  if (g_verification_instance_ptr == 0){
+    g_verification_instance_ptr = new Verification();
   }
 }
 
 void Verification::Update(){
-  std::cout << "Verification: " << verification_instance_ptr << std::endl;
+  std::cout << "Verification: " << g_verification_instance_ptr << std::endl;
 }

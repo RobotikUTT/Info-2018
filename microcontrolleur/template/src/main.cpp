@@ -17,10 +17,10 @@ int main(){
 
   while (1) {
     std::cout << "time: " << time(0) << std::endl;
-    interface_instance_ptr->Update();
-    verification_instance_ptr->Update();
-    module_instance_ptr->Update();
-    watcher_instance_ptr->Update();
+    g_interface_instance_ptr->Update();
+    g_verification_instance_ptr->Update();
+    g_module_instance_ptr->Update();
+    g_watcher_instance_ptr->Update();
     usleep(1000000);
   }
 }

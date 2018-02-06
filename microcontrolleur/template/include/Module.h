@@ -11,11 +11,10 @@ class Module{
 
 
   public:
-
     static void CreateSingleton();
     ~Module();
     void Update();
 };
-extern Module* module_instance_ptr;
+extern Module* g_module_instance_ptr;
 
 #endif

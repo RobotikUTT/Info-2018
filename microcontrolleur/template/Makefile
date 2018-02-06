@@ -3,10 +3,10 @@ CC=g++
 CFLAGS=-W -Wall -ansi -pedantic
 LDFLAGS=-lstdc++
 EXEC=main
-# SRC= $(wildcard *.c)
-SRC= main.cpp Interface.cpp Verification.cpp Module.cpp Watcher.cpp
+DIRSRC=./src
+SRC= $(wildcard $(DIRSRC)/*.cpp)
+INCL=./include
 OBJ= $(SRC:.c=.o)
-INCL=../include
 
 all: $(EXEC)
 

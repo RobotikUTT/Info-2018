@@ -31,7 +31,7 @@ ARDUINO:
 
   STRUCTURE:
 
-          Interface   Verification     Modules     Get Status
+          Interface   Verification     Modules     Watcher
           +------+      +------+      +------+     +------+
 In        |      |      |      | Get  |      | Get |      |
 +--------->      |Get   |      <------+      <-----+      |
@@ -47,7 +47,7 @@ Out       |      |      |      |      +------+     |      |
         Chaque réctangle est une classe.
 
         Le code sera fait sur un micro controlleur, donc on exécutera la fonction
-        update de chaque classe, de l'interface, au Get Status.
+        update de chaque classe, de l'interface, au Watcher.
 
         Les access materiels seront dans les modules. Chaque module aura sa machine
         à états.
@@ -58,7 +58,7 @@ STM32:
 
   STRUCTURE:
 
-          Interface   Verification     Modules     Get Status
+          Interface   Verification     Modules     Watcher
           +------+      +------+      +------+     +------+
 In        |      |      |      | Get  |      | Get |      |
 +--------->      |Get   |      <------+      <-----+      |
@@ -74,7 +74,7 @@ Out       |      |      |      |      +------+     |      |
         Chaque réctangle est une classe.
 
         Le code sera fait sur un micro controlleur, donc on exécutera la fonction
-        update de chaque classe, de l'interface, au Get Status.
+        update de chaque classe, de l'interface, au Watcher.
 
 
 BBB:

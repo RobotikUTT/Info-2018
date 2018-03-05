@@ -1,32 +1,35 @@
-Trouver comment faire du cpp sur nucleo.............Done?
+Trouver comment faire du cpp sur nucleo.......Done?
 
-Faire marcher les timers pour les codeuses..........TODO
+Faire marcher les timers pour les codeuses....TODO
 	
-Simplifier la communication Série...................Doing
-	numbers:
-	uint32......................................OK
-	uint16......................................OK
-	uint8.......................................OK
-	int32.......................................TODO
-	int16.......................................TODO
-	int8........................................TODO
-	readable:
-	char array..................................OK
-	uint32......................................OK
-	uint16......................................OK
-	uint8.......................................OK
-	int32.......................................TODO
-	int16.......................................TODO
-	int8........................................TODO
+Simplifier la communication Série.............Doing
+	write
+		numbers:
+			uint32.......................OK
+			uint16.......................OK
+			uint8........................OK
+			int32........................TODO
+			int16........................TODO
+			int8.........................TODO
+		readable:
+			char array...................OK
+			uint32.......................OK
+			uint16.......................OK
+			uint8........................OK
+			int32........................OK
+			int16........................OK
+			int8.........................OK
+
+	read.................................TODO
 	
 	
 
 
-Générer du PWM......................................
-	freq........................................OK
-	rapport cyclique............................OK
-	Adaptation tension..........................TODO
+Générer du PWM................................DOING
+	freq.................................OK
+	rapport cyclique.....................OK
+	Adaptation tension...................TODO
 	
-Faire marcher le CAN................................TODO
+Faire marcher le CAN..........................TODO
 
-Implémenter l'asserv................................TODO
+Implémenter l'asserv..........................TODO

@@ -23,6 +23,9 @@ class Serial
 		void send_string(uint32_t value);
 		void send_string(uint16_t value);
 		void send_string(uint8_t value);
+		void send_string(int32_t value);
+		void send_string(int16_t value);
+		void send_string(int8_t value);
 
 };
 

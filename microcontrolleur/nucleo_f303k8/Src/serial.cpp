@@ -16,7 +16,7 @@ void Serial::send_number(uint32_t value)
 	// char buf[sizeof(uint32_t)+1];
 	// snprintf(buf, sizeof buf, "%lu", (unsigned long)value);
 	uint8_t buf[sizeof(uint32_t)];
-	int i;
+	uint8_t i;
 	for( i=0; i < sizeof(uint32_t); i++)
 	{
 		buf[i] = value >> 8*(sizeof(uint32_t)-i-1);
@@ -28,7 +28,7 @@ void Serial::send_number(uint32_t value)
 void Serial::send_number(uint16_t value)
 {
 	uint8_t buf[sizeof(uint16_t)];
-	int i;
+	uint8_t i;
 	for( i=0; i < sizeof(uint16_t); i++)
 	{
 		buf[i] = value >> 8*(sizeof(uint16_t)-i-1);
@@ -57,14 +57,34 @@ void Serial::send_string(uint32_t value)
 void Serial::send_string(uint16_t value)
 {
 	char buf[6];
-	snprintf(buf, sizeof buf, "%u", (unsigned long)value);
+	snprintf(buf, sizeof buf, "%u", value);
 	send_string(buf);
 }
 
 void Serial::send_string(uint8_t value)
 {
 	char buf[4];
-	snprintf(buf, sizeof buf, "%u", value);
+	snprintf(buf, sizeof buf, "%hu", value);
 	send_string(buf);
 }
 
+void Serial::send_string(int32_t value)
+{
+	char buf[12];
+	snprintf(buf, sizeof buf, "%li", value);
+	send_string(buf);
+}
+
+void Serial::send_string(int16_t value)
+{
+	char buf[7];
+	snprintf(buf, sizeof buf, "%i", value);
+	send_string(buf);
+}
+
+void Serial::send_string(int8_t value)
+{
+	char buf[5];
+	snprintf(buf, sizeof buf, "%hi", value);
+	send_string(buf);
+}

@@ -2,7 +2,8 @@
 #define __PWM_DRIVER_H__
 
 #include "stm32f3xx_hal.h"
-
+#include "stm32f3xx_hal_dma.h"
+#include "stm32f3xx_hal_tim.h"
 class pwm
 {
 	private:

@@ -1,0 +1,8 @@
+microcontrolleur/nucleo_f303k8/build/
+microcontrolleur/nucleo_f303k8/Drivers/
+*.ioc
+*.sublime-project
+*.sublime-workspace
+*.s
+*.ld
+*.mxproject

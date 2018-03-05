@@ -15,17 +15,17 @@ class Serial
 		UART_HandleTypeDef* m_serial_interface_ptr;
 	public:
 		Serial(UART_HandleTypeDef* serial);
-		void send_number(uint32_t value);
-		void send_number(uint16_t value);
-		void send_number(uint8_t value);
+		void write(uint32_t value);
+		void write(uint16_t value);
+		void write(uint8_t value);
 
-		void send_string(char* msg);
-		void send_string(uint32_t value);
-		void send_string(uint16_t value);
-		void send_string(uint8_t value);
-		void send_string(int32_t value);
-		void send_string(int16_t value);
-		void send_string(int8_t value);
+		void print(char* msg);
+		void print(uint32_t value);
+		void print(uint16_t value);
+		void print(uint8_t value);
+		void print(int32_t value);
+		void print(int16_t value);
+		void print(int8_t value);
 
 };
 

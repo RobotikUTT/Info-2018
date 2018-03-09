@@ -1,6 +1,8 @@
-Trouver comment faire du cpp sur nucleo.......Done?
+Trouver comment faire du cpp sur nucleo.......OK
 
-Faire marcher les timers pour les codeuses....TODO
+Faire marcher les timers pour les codeuses....DOING
+	Trouver les méthodes.................OK
+	Implémenter la classe................doing
 	
 Simplifier la communication Série.............Doing
 	write
@@ -33,3 +35,10 @@ Générer du PWM................................DOING
 Faire marcher le CAN..........................TODO
 
 Implémenter l'asserv..........................TODO
+
+	moteurs..............................TODO
+	PID..................................TODO
+	communication........................TODO
+	asservissement.......................TODO
+	bbpr.................................TODO
+	motion planning......................TODO

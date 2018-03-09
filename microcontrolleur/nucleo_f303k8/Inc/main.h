@@ -49,26 +49,29 @@
 #include <cstring>
 #include "serial.h"
 #include "pwm.h"
-
-
+#include "can.h"
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
 
+#define ENC_R_A_Pin GPIO_PIN_0
+#define ENC_R_A_GPIO_Port GPIOA
 #define ENC_R_B_Pin GPIO_PIN_1
 #define ENC_R_B_GPIO_Port GPIOA
-#define ENC_R_A_Pin GPIO_PIN_5
-#define ENC_R_A_GPIO_Port GPIOA
-#define MOT_R_EN_Pin GPIO_PIN_7
-#define MOT_R_EN_GPIO_Port GPIOA
-#define ENC_L_A_Pin GPIO_PIN_8
-#define ENC_L_A_GPIO_Port GPIOA
-#define ENC_L_B_Pin GPIO_PIN_9
+#define ENC_L_B_Pin GPIO_PIN_4
 #define ENC_L_B_GPIO_Port GPIOA
+#define EN_L_A_Pin GPIO_PIN_6
+#define EN_L_A_GPIO_Port GPIOA
+#define MOT_L_EN_Pin GPIO_PIN_7
+#define MOT_L_EN_GPIO_Port GPIOA
+#define SWDIO_Pin GPIO_PIN_13
+#define SWDIO_GPIO_Port GPIOA
+#define SWCLK_Pin GPIO_PIN_14
+#define SWCLK_GPIO_Port GPIOA
 #define TEST_LED_Pin GPIO_PIN_3
 #define TEST_LED_GPIO_Port GPIOB
-#define MOT_L_EN_Pin GPIO_PIN_4
-#define MOT_L_EN_GPIO_Port GPIOB
+#define MOT_R_EN_Pin GPIO_PIN_4
+#define MOT_R_EN_GPIO_Port GPIOB
 #define MOT_R_DIR_Pin GPIO_PIN_6
 #define MOT_R_DIR_GPIO_Port GPIOB
 #define MOT_L_DIR_Pin GPIO_PIN_7
@@ -82,13 +85,10 @@
 /* #define USE_FULL_ASSERT    1U */
 
 /* USER CODE BEGIN Private defines */
-// long nb_tick_enc_L_A;
-// long nb_tick_enc_L_B;
-// long nb_tick_enc_R_A;
-// long nb_tick_enc_R_B;
 
-// void init_variables(void);
-// void send_PC_UART_DATA(uint32_t value);
+#define L_ENC_TIM TIM3
+#define R_ENC_TIM TIM2
+#define SERIAL_DELAY 50
 
 /* USER CODE END Private defines */
 

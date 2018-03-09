@@ -4,12 +4,13 @@
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_hal_dma.h"
 #include "stm32f3xx_hal_tim.h"
-class pwm
+class Pwm
 {
 	private:
-		TIM_HandleTypeDef* m_timer;
+		TIM_HandleTypeDef* m_timer_ptr;
 	public:
-		pwm(TIM_HandleTypeDef* timer);
+		Pwm(TIM_HandleTypeDef* timer);
+		~Pwm();
 		void set_timer_freq(uint32_t freq);
 		void set_channel_duty_cycle(uint32_t Channel, 
 								uint8_t duty_cycle);

@@ -47,7 +47,6 @@ using namespace std;
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan;
 
-TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim16;
@@ -65,13 +64,13 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_CAN_Init(void);
+static void MX_TIM2_Init(void);
 static void MX_TIM16_Init(void);
 static void MX_TIM17_Init(void);
-static void MX_TIM1_Init(void);
-static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+                                
                                 
 
 /* USER CODE BEGIN PFP */
@@ -115,70 +114,96 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_CAN_Init();
+  MX_TIM2_Init();
   MX_TIM16_Init();
   MX_TIM17_Init();
-  MX_TIM1_Init();
-  MX_TIM2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-  char msg[50] = "Hello World!";
-  char buf[sizeof(long)];
-  Serial serial(&huart2);
-  pwm my_pwm(&htim3);
+  // char msg[50] = "Hello World!\n";
+  Serial g_serial(&huart2);
+  Pwm g_right_pwm(&htim16);
+  Pwm g_left_pwm(&htim17);
+  Can g_can(&hcan,(uint16_t) 15);
+  // g_serial.send_string(msg);
+
+  // g_serial.print(msg);
+
+  HAL_StatusTypeDef l_encoder_status = HAL_TIM_Encoder_Start_IT(&htim3,TIM_CHANNEL_ALL);
+  HAL_StatusTypeDef r_encoder_status = HAL_TIM_Encoder_Start_IT(&htim2,TIM_CHANNEL_ALL);
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  // HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 0xFFFF);
   
-
+  /****PWM tests*************/
   
   uint8_t duty_cycle = 128;
 
-  my_pwm.set_timer_freq(32000);
-  my_pwm.set_channel_duty_cycle(TIM_CHANNEL_1, duty_cycle);
-  // set_channel_duty_cycle(&htim3,TIM_CHANNEL_2,pwm);4
+  g_right_pwm.set_timer_freq(32000);
+  g_right_pwm.set_channel_duty_cycle(TIM_CHANNEL_1, duty_cycle);
 
-  // TIM_OC_InitTypeDef sConfigOC;
-  // sConfigOC.OCMode = TIM_OCMODE_ASSYMETRIC_PWM1;
-  // sConfigOC.Pulse = htim3.Init.Period*duty/0xFF;
-  // sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  // sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-  // if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
-  // {
-  //   _Error_Handler(__FILE__, __LINE__);
-  // }
-
-
-  uint8_t oneByte = 0;
-  uint16_t twoBytes = 0x0000;
-  uint32_t fourBytes = 0xFE000000;
-  strcpy(msg,"this is my message");
-
+  g_left_pwm.set_timer_freq(32000);
+  g_left_pwm.set_channel_duty_cycle(TIM_CHANNEL_1, 64);
+  // HAL_TIM_PWM_Start(&htim16,TIM_CHANNEL_1);
+  // HAL_TIM_PWM_Start(&htim17,TIM_CHANNEL_1);
+  /*****Communiation test déclarations******/
+  // int8_t oneByte = 0;
+  // int16_t twoBytes = 0x0000;
+  // int32_t fourBytes = 0x7FFFF000;
+  // strcpy(msg,"this is my message");
+  uint32_t before = HAL_GetTick();
   while (1)
   {
+
+
+    /*****Encoders tests*******/    
+    // int16_t count_left  = L_ENC_TIM->CNT;
+    // int16_t count_right = R_ENC_TIM->CNT;
+    // if (count_right > 1000 || count_right < -1000)
+    // {
+    //   R_ENC_TIM->CNT = 0;
+    // }
+    // if (count_left > 1000 || count_left < -1000)
+    // {
+    //   L_ENC_TIM->CNT = 0;
+    // }
     
-    // strcpy(CAN_msg.Data, "Hello!");
-    // serial.send_string(fourBytes);
-    // send_string(&huart2,"\n");
-    //send_uint16(&huart2,twoBytes);
-    // send_string(&huart2,"\n");
-    // send_uint32(&huart2, fourBytes);
-    // send_string(&huart2,"\n");
-    serial.send_string(msg);
-    serial.send_string("\n");
-    //send_uint8_as_string(&huart2,oneByte);
-    //send_string(&huart2,"\n");
-    oneByte++;
-    twoBytes++;
-    fourBytes++;
+    /********Communication tests***************/
+    if( HAL_GetTick() - before > SERIAL_DELAY)
+    {
+    //   uint8_t message[8] = {0x30, 0x31, 0x32, 0x33,
+    //                         0x34, 0x35, 0x36, 0x37};
+    //   g_can.write(message);
+    //   g_serial.print("Sent to CAN: ");
+    //   g_serial.write(g_can.get_tx_msg(), (uint16_t) 8);
+    //   // HAL_Delay(10);
+      g_serial.print("\n");
+      g_serial.read();
+    //   // g_serial.print("Time elapsed: ");
+    //   // g_serial.write(message[0]);                            
+    //   // g_serial.print(HAL_GetTick());
+    //   // g_serial.print(" ms\n");
+    //   //g_serial.print("Encoder left:");
+    //   // g_serial.print(count_left);
+    //   // g_serial.print("\n");
+    //   //g_serial.print("Encoder right:");
+    //   // g_serial.print(count_right);
+    //   // g_serial.print("\n");
+    //   // g_serial.read();
+    //   // g_serial.print("available: ");
+    //   // g_serial.print(g_serial.available());
+    //   // g_serial.print("\n\n");  
+    //   //g_serial.read();
+      HAL_GPIO_TogglePin(GPIOB, TEST_LED_Pin);
+      before = HAL_GetTick();
+    
+    }
     
     
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-    HAL_GPIO_TogglePin(GPIOB, TEST_LED_Pin);
-    //HAL_Delay(200);
   }
   /* USER CODE END 3 */
 
@@ -193,7 +218,6 @@ void SystemClock_Config(void)
 
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
@@ -205,7 +229,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL16;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
-    _Error_Handler((char*)__FILE__, __LINE__);
+    _Error_Handler(__FILE__, __LINE__);
   }
 
     /**Initializes the CPU, AHB and APB busses clocks 
@@ -218,13 +242,6 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_TIM1;
-  PeriphClkInit.Tim1ClockSelection = RCC_TIM1CLK_HCLK;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -246,7 +263,7 @@ static void MX_CAN_Init(void)
 {
 
   hcan.Instance = CAN;
-  hcan.Init.Prescaler = 1;
+  hcan.Init.Prescaler = 8;
   hcan.Init.Mode = CAN_MODE_NORMAL;
   hcan.Init.SJW = CAN_SJW_1TQ;
   hcan.Init.BS1 = CAN_BS1_6TQ;
@@ -264,44 +281,6 @@ static void MX_CAN_Init(void)
 
 }
 
-/* TIM1 init function */
-static void MX_TIM1_Init(void)
-{
-
-  TIM_Encoder_InitTypeDef sConfig;
-  TIM_MasterConfigTypeDef sMasterConfig;
-
-  htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 0;
-  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 0;
-  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim1.Init.RepetitionCounter = 0;
-  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
-  sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
-  sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
-  sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
-  sConfig.IC1Filter = 0;
-  sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
-  sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
-  sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
-  sConfig.IC2Filter = 0;
-  if (HAL_TIM_Encoder_Init(&htim1, &sConfig) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-}
-
 /* TIM2 init function */
 static void MX_TIM2_Init(void)
 {
@@ -312,10 +291,10 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 0;
+  htim2.Init.Period = 0xFFFF;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
+  sConfig.EncoderMode = TIM_ENCODERMODE_TI12;
   sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
@@ -342,8 +321,8 @@ static void MX_TIM2_Init(void)
 static void MX_TIM3_Init(void)
 {
 
+  TIM_Encoder_InitTypeDef sConfig;
   TIM_MasterConfigTypeDef sMasterConfig;
-  TIM_OC_InitTypeDef sConfigOC;
 
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 0;
@@ -351,7 +330,16 @@ static void MX_TIM3_Init(void)
   htim3.Init.Period = 0;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
+  sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
+  sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
+  sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
+  sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
+  sConfig.IC1Filter = 0;
+  sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
+  sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
+  sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
+  sConfig.IC2Filter = 0;
+  if (HAL_TIM_Encoder_Init(&htim3, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -363,34 +351,19 @@ static void MX_TIM3_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-  sConfigOC.OCMode = TIM_OCMODE_ASSYMETRIC_PWM1;
-  sConfigOC.Pulse = 0;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 0x3e80;
-  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  HAL_TIM_MspPostInit(&htim3);
-
 }
 
 /* TIM16 init function */
 static void MX_TIM16_Init(void)
 {
 
+  TIM_OC_InitTypeDef sConfigOC;
+  TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
+
   htim16.Instance = TIM16;
   htim16.Init.Prescaler = 0;
   htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim16.Init.Period = 0x8000;
+  htim16.Init.Period = 2000;
   htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim16.Init.RepetitionCounter = 0;
   htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -399,16 +372,51 @@ static void MX_TIM16_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
+  if (HAL_TIM_PWM_Init(&htim16) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 1000;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+  if (HAL_TIM_PWM_ConfigChannel(&htim16, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
+  sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
+  sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
+  sBreakDeadTimeConfig.DeadTime = 0;
+  sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
+  sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
+  sBreakDeadTimeConfig.BreakFilter = 0;
+  sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
+  if (HAL_TIMEx_ConfigBreakDeadTime(&htim16, &sBreakDeadTimeConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  HAL_TIM_MspPostInit(&htim16);
+
 }
 
 /* TIM17 init function */
 static void MX_TIM17_Init(void)
 {
 
+  TIM_OC_InitTypeDef sConfigOC;
+  TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
+
   htim17.Instance = TIM17;
   htim17.Init.Prescaler = 0;
   htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim17.Init.Period = 0;
+  htim17.Init.Period = 2000;
   htim17.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim17.Init.RepetitionCounter = 0;
   htim17.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -416,6 +424,38 @@ static void MX_TIM17_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
+
+  if (HAL_TIM_PWM_Init(&htim17) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 1000;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+  if (HAL_TIM_PWM_ConfigChannel(&htim17, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
+  sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
+  sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
+  sBreakDeadTimeConfig.DeadTime = 0;
+  sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
+  sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
+  sBreakDeadTimeConfig.BreakFilter = 0;
+  sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
+  if (HAL_TIMEx_ConfigBreakDeadTime(&htim17, &sBreakDeadTimeConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  HAL_TIM_MspPostInit(&htim17);
 
 }
 
@@ -470,142 +510,8 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 
-void write_CAN()
-{
-  // CanTxMsgTypeDef CAN_msg;
-  // CAN_msg.StdId = 15;
-  // CAN_msg.ExtId = 15;
-  // CAN_msg.IDE = CAN_ID_STD;
-  // CAN_msg.RTR = CAN_RTR_DATA;
-  // CAN_msg.DLC = 8;
-  // strcpy(CAN_msg.Data, "Hello!");
-  // hcan.pTxMsg = &CAN_msg;
-
-  // HAL_StatusTypeDef can_status;
-  // can_status = HAL_CAN_Transmit_IT(&hcan);
-  // char msg[20];
-  
-  // switch(can_status)
-  // {
-  //   case HAL_OK:
-  //   strcpy(msg, "CAN SENT OK\n");
-  //   HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 0xFFFF);
-  //   break;
-
-  //   case HAL_ERROR:
-  //   strcpy(msg, "CAN SENT ERROR\nERROR CODE:" );
-  //   HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 0xFFFF);
-  //   //send_PC_UART_DATA((long)HAL_CAN_GetError(&hcan));
-  //   send_uint32(HAL_CAN_GetError(&hcan));
-  //   strcpy(msg, "\n" );
-  //   HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 0xFFFF);
-  //   break;
-
-  //   case HAL_BUSY:
-  //   strcpy(msg, "CAN BUSY\n");
-  //   HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 0xFFFF);
-  //   break;
-
-  //   case HAL_TIMEOUT:
-  //   strcpy(msg, "CAN TIMEOUT\n");
-  //   HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 0xFFFF);
-  //   break;
-
-  // }
-}
-
-void read_CAN()
-{
-
-  // CanRxMsgTypeDef CAN_rec;
-  // CAN_rec.IDE = CAN_ID_STD;
-  // CAN_rec.RTR = CAN_RTR_DATA;
-  // CAN_rec.DLC = 8;
-  // CAN_rec.FMI = 2;
-  // // CAN_rec = hcan.pRxMsg;
-  // //CAN_rec = *hcan.pRxMsg;
-
-  // HAL_StatusTypeDef can_status;
-  // can_status = HAL_CAN_Receive_IT(&hcan, 50);
-  // char msg[20];
-    
-  // switch(can_status)
-  // {
-  //   case HAL_OK:
-  //   strcpy(msg, "CAN RECEIVED OK\n");
-  //   CAN_rec = *hcan.pRxMsg;
-  //   HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 0xFFFF);
-  //   break;
-
-  //   case HAL_ERROR:
-  //   strcpy(msg, "CAN RECEIVED ERROR\nERROR CODE:" );
-  //   HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 0xFFFF);
-  //   //send_PC_UART_DATA((long)HAL_CAN_GetError(&hcan));
-  //   send_uint32(HAL_CAN_GetError(&hcan));
-  //   strcpy(msg, "\n" );
-  //   HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 0xFFFF);
-  //   break;
-
-  //   case HAL_BUSY:
-  //   strcpy(msg, "CAN BUSY\n");
-  //   HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 0xFFFF);
-  //   break;
-
-  //   case HAL_TIMEOUT:
-  //   strcpy(msg, "CAN TIMEOUT\n");
-  //   HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 0xFFFF);
-  //   break;
-
-  //   default:
-  //     strcpy(msg, "CAN RECEPTION DEFAULT\n");
-  //     HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 0xFFFF);
-  //     break;
-
-  // }
-
-  // strcpy(msg,"\nID:");
-  // HAL_UART_Transmit(&huart2, (uint8_t*)msg,strlen(msg),0xFFFF);
-  
 
 
-  // uint32_t value = 0x12345678;
-
-  //char buf[100];
-  //snprintf(buf, sizeof buf, "%lu", CAN_rec.StdId);
-
-  // //snprintf(buf, sizeof buf, "%c", value); /* Method 1 */
-  // /*int i;
-  // for( i=0; i< sizeof(uint16_t); i++)
-  // {
-  //   buf[i] = *(&value +i);
-  // }
-  // buf[sizeof(uint16_t)] = '\0';
-  // //snprintf(buf, sizeof buf, "%" PRIu32, n); /* Method 2 */
-
-  // //HAL_UART_Transmit(&huart2, (uint8_t*)buf, strlen(buf), 0xFFFF);
-  // strcpy(msg,CAN_rec.StdId);
-  // HAL_UART_Transmit(&huart2, msg,strlen(msg),0xFFFF);
-  // //send_PC_UART_DATA((CAN_rec).StdId );
-
-  // strcpy(msg, "\nData:");
-  // HAL_UART_Transmit(&huart2, msg, strlen(msg), 0xFFFF);
-  // //strcpy(msg, CAN_rec.Data);
-  // //send_PC_UART_DATA(hcan.pRxMsg->Data[0]);
-  // //HAL_UART_Transmit(&huart2, msg, strlen(msg), 0xFFFF);
-  // //HAL_UART_Transmit(&huart2, '\n',1,0xFFFF);
-  // //*msg  = *msg + "m\n";
-  // //if( CAN_rec.Data[0] == 0x41 )
-  // uint8_t my_buf[8]= {0x33,0x33,0x32,0x32,0x32,0x32,0x33,0x33};
-  // int i;
-  // for(i = 0; i< 8; i++)
-  // {
-  //   hcan.pTxMsg->Data[i] = my_buf[i];//hcan.pRxMsg->Data[i];
-    
-  // }
-  // HAL_UART_Transmit(&huart2, hcan.pTxMsg->Data, sizeof(hcan.pTxMsg->Data), 0xFFFF);
-  // //snprintf(hcan.pTxMsg->Data, sizeof(hcan.pRxMsg->Data), "%u", my_buf);
-  // //strcpy((char*) hcan.pTxMsg->Data, (char*) hcan.pRxMsg->Data);
-}
 
 // void send_PC_UART_DATA(uint32_t value)
 // {

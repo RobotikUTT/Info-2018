@@ -68,6 +68,7 @@ static void MX_TIM2_Init(void);
 static void MX_TIM16_Init(void);
 static void MX_TIM17_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_NVIC_Init(void);
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
@@ -76,7 +77,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 /* USER CODE BEGIN PFP */
 // }
 /* Private function prototypes -----------------------------------------------*/
-
+static void MX_CAN_FilterConfig(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -118,7 +119,11 @@ int main(void)
   MX_TIM16_Init();
   MX_TIM17_Init();
   MX_TIM3_Init();
+
+  /* Initialize interrupts */
+  MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
+  MX_CAN_FilterConfig();
   // char msg[50] = "Hello World!\n";
   Serial g_serial(&huart2);
   Pwm g_right_pwm(&htim16);
@@ -170,31 +175,58 @@ int main(void)
     // }
     
     /********Communication tests***************/
+    // g_serial.read();
+    HAL_StatusTypeDef can_status;
+
+
     if( HAL_GetTick() - before > SERIAL_DELAY)
     {
-    //   uint8_t message[8] = {0x30, 0x31, 0x32, 0x33,
-    //                         0x34, 0x35, 0x36, 0x37};
-    //   g_can.write(message);
-    //   g_serial.print("Sent to CAN: ");
-    //   g_serial.write(g_can.get_tx_msg(), (uint16_t) 8);
-    //   // HAL_Delay(10);
-      g_serial.print("\n");
-      g_serial.read();
-    //   // g_serial.print("Time elapsed: ");
-    //   // g_serial.write(message[0]);                            
-    //   // g_serial.print(HAL_GetTick());
-    //   // g_serial.print(" ms\n");
-    //   //g_serial.print("Encoder left:");
-    //   // g_serial.print(count_left);
-    //   // g_serial.print("\n");
-    //   //g_serial.print("Encoder right:");
-    //   // g_serial.print(count_right);
-    //   // g_serial.print("\n");
-    //   // g_serial.read();
-    //   // g_serial.print("available: ");
-    //   // g_serial.print(g_serial.available());
-    //   // g_serial.print("\n\n");  
-    //   //g_serial.read();
+      
+      uint8_t tx_msg[8] = {0x30, 0x31, 0x32, 0x33,
+                            0x34, 0x35, 0x36, 0x37};
+      uint8_t rx_msg[8];
+      can_status = g_can.write(tx_msg);
+      
+      bool is_equal = g_can.read();
+
+
+      if( is_equal)
+      {
+        g_serial.print("same thing\n");
+      }
+      else
+      {
+        g_serial.print("different things\n");
+      }
+      switch(can_status)
+      {
+
+
+        case HAL_OK:
+          // g_serial.print("CAN SENT OK\n");
+          // g_serial.print("\n");
+          g_serial.print((char*)g_can.get_rx_msg());
+          // g_serial.print("\n\n");
+          break;
+
+        case HAL_ERROR:
+          g_serial.print("CAN SENT ERROR\n");
+          break;
+
+        case HAL_BUSY:
+          g_serial.print("CAN SENT BUSY\n");
+          break;
+
+        case HAL_TIMEOUT:
+          // g_serial.print("CAN SENT TIMEOUT\n");
+          break;
+
+        default:
+          g_serial.print("UNKNOWN\n");
+
+      }
+
+      
       HAL_GPIO_TogglePin(GPIOB, TEST_LED_Pin);
       before = HAL_GetTick();
     
@@ -258,18 +290,35 @@ void SystemClock_Config(void)
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
+/**
+  * @brief NVIC Configuration.
+  * @retval None
+  */
+static void MX_NVIC_Init(void)
+{
+  /* USART2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(USART2_IRQn, 14, 0);
+  HAL_NVIC_EnableIRQ(USART2_IRQn);
+  /* CAN_RX1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(CAN_RX1_IRQn, 15, 0);
+  HAL_NVIC_EnableIRQ(CAN_RX1_IRQn);
+  /* CAN_RX0_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(CAN_RX0_IRQn, 15, 0);
+  HAL_NVIC_EnableIRQ(CAN_RX0_IRQn);
+}
+
 /* CAN init function */
 static void MX_CAN_Init(void)
 {
 
   hcan.Instance = CAN;
-  hcan.Init.Prescaler = 8;
+  hcan.Init.Prescaler = 4;
   hcan.Init.Mode = CAN_MODE_NORMAL;
   hcan.Init.SJW = CAN_SJW_1TQ;
   hcan.Init.BS1 = CAN_BS1_6TQ;
   hcan.Init.BS2 = CAN_BS2_1TQ;
   hcan.Init.TTCM = DISABLE;
-  hcan.Init.ABOM = DISABLE;
+  hcan.Init.ABOM = ENABLE;
   hcan.Init.AWUM = DISABLE;
   hcan.Init.NART = DISABLE;
   hcan.Init.RFLM = DISABLE;
@@ -278,6 +327,10 @@ static void MX_CAN_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
+
+
+
+
 
 }
 
@@ -363,7 +416,7 @@ static void MX_TIM16_Init(void)
   htim16.Instance = TIM16;
   htim16.Init.Prescaler = 0;
   htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim16.Init.Period = 2000;
+  htim16.Init.Period = 0;
   htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim16.Init.RepetitionCounter = 0;
   htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -378,7 +431,7 @@ static void MX_TIM16_Init(void)
   }
 
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 1000;
+  sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
@@ -416,7 +469,7 @@ static void MX_TIM17_Init(void)
   htim17.Instance = TIM17;
   htim17.Init.Prescaler = 0;
   htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim17.Init.Period = 2000;
+  htim17.Init.Period = 0;
   htim17.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim17.Init.RepetitionCounter = 0;
   htim17.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -431,7 +484,7 @@ static void MX_TIM17_Init(void)
   }
 
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 1000;
+  sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
@@ -472,6 +525,8 @@ static void MX_USART2_UART_Init(void)
   huart2.Init.OverSampling = UART_OVERSAMPLING_16;
   huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
   huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  huart2.AdvancedInit.OverrunDisable = UART_ADVFEATURE_OVERRUN_DISABLE;
+  huart2.AdvancedInit.DMADisableonRxError = UART_ADVFEATURE_DMA_DISABLEONRXERROR;
   if (HAL_UART_Init(&huart2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -509,7 +564,21 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-
+static void MX_CAN_FilterConfig()
+{
+  CAN_FilterConfTypeDef CAN_Filter;
+  CAN_Filter.FilterIdHigh = 0xFFFF;
+  CAN_Filter.FilterIdLow = 0;
+  CAN_Filter.FilterMaskIdHigh = 0xFFFF;
+  CAN_Filter.FilterMaskIdLow = 0;
+  CAN_Filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+  CAN_Filter.FilterNumber = 0;
+  CAN_Filter.FilterMode = CAN_FILTERMODE_IDMASK;
+  CAN_Filter.FilterScale = CAN_FILTERSCALE_16BIT;
+  CAN_Filter.FilterActivation = ENABLE;
+  CAN_Filter.BankNumber = 0;
+  HAL_CAN_ConfigFilter(&hcan, &CAN_Filter);
+}
 
 
 
@@ -546,6 +615,8 @@ void _Error_Handler(char *file, int line)
   /* User can add his own implementation to report the HAL error return state */
   while(1)
   {
+    HAL_GPIO_TogglePin(GPIOB, TEST_LED_Pin);
+    HAL_Delay(1000);
   }
   /* USER CODE END Error_Handler_Debug */
 }

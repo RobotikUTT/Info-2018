@@ -1,0 +1,93 @@
+## Template pour le code microcontrolleur ##
+
+--------------------------------------------------------------------------------
+
+ARBORESCENCE:
+
+└── template
+    ├── include
+    │   ├── Interface.h
+    │   ├── Module.h
+    │   ├── Verification.h
+    │   └── Watcher.h
+    ├── src
+    │   ├── Interface.cpp
+    │   ├── main.cpp
+    │   ├── Module.cpp
+    │   ├── Verification.cpp
+    │   └── Watcher.cpp
+    ├── main
+    ├── Makefile
+    ├── README
+    └── ToDo.txt
+
+
+--------------------------------------------------------------------------------
+
+STRUCTURE:
+
+          Interface   Verification     Modules     Watcher
+          +------+      +------+      +------+     +------+
+In        |      |      |      | Get  |      | Get |      |
++--------->      |Get   |      <------+      <-----+      |
+          |      <------+      |      +------+     |      |
+Out       |      |      |      |      +------+     |      |
+<---------+      |      |      | Get  |      | Get |      |
+          |      |      |      <------+      <-----+      |
+          +---^--+      +------+      +------+     +---+--+
+              |                                        |
+              |           Generate msg                 |
+              +----------------------------------------+
+
+  Toutes les classes sont des singletons et ont les méthodes suivantes:
+Privées:
+  - Le constructeur
+
+Public:
+  - Le destructeur
+  - CreateSingleton (pour créer l'instance, méthode static)
+  - Update (qui est la methode appeler dans la boucle main)
+
+  Chaque singleton doit connaitre la/les classes au dessus d'elle (hors la
+classe Watcher qui doit aussi connaitre la classe Interface pour pouvoir envoyer
+les messages).
+
+  Pour cela, dans chaque .h, un pointeur vers le singleton est partagé. Pour
+qu'une classe connaisse l'existance d'une autre classe, incluez le .h
+correspondant.
+
+--------------------------------------------------------------------------------
+
+LES CLASSES:
+
+Interface:    Elle gère les communications avec l'exterieur. Elle ne fait que
+              récupérer et stocker les messages entrant.
+
+Vérification: Elle traite les différents messages, regarde qu'il n'y ai pas de
+              conflit, et traite les messages si besoin. Elle stocke les
+              messages/variables traité.
+
+Modules:      Elle peut être associé au driveur/controlleur du materiel. Elle
+              applique les ordres et récupérer les informations des
+              capteurs/moteurs.
+
+Watcher:      Elle récupère les différents information des Modules pour enfin
+              envoyer un/des messages à la carte mère.
+
+--------------------------------------------------------------------------------
+
+LE MAKEFILE:
+
+  Pour compilier le projet pour le tester, juste faite "make" dans le dossier
+./template. Vous pouvez taper "make mrproper" pour clean entierement le projet
+des fichiers compiler.
+
+  Normalement, pas besoin de le modifier pour la compilation sur l'ordinateur.
+Il faudra l'adapter pour le compiler et l'uploader sur les cartes (ou passé par
+un autre système).
+
+--------------------------------------------------------------------------------
+
+TODO:
+
+Cf le fichier correspondant.

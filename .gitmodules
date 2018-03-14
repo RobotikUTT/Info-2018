@@ -1,0 +1,9 @@
+[submodule "BBB"]
+	path = BBB
+	url = git@github.com:RobotikUTT/Info-2018_BeagleBone_Black.git
+[submodule "STM32"]
+	path = STM32
+	url = git@github.com:RobotikUTT/Info-2018_STM32.git
+[submodule "Arduino"]
+	path = Arduino
+	url = git@github.com:RobotikUTT/Info-2018_Arduino.git

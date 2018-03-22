@@ -22,7 +22,7 @@ class Can
 		Can(CAN_HandleTypeDef* can, uint16_t id);
 		~Can();
 
-		bool read();
+		HAL_StatusTypeDef read();
 		HAL_StatusTypeDef write(uint8_t* msg);
 		uint8_t* get_rx_msg();
 

@@ -1,0 +1,27 @@
+protocole CAN Message
+
+Adresse BeagleBone: 0x001
+Adresse Nucleo:		0x010
+Adresse Arduino:	0x100
+
+Le premier octet de chaque trame est l'octet de mode, indiquant à quelle information correspondent les octets suivants.
+
+Contrôle moteur
+	BeagleBone -> Nucleo: 
+		trame de 5 octets. Transmission de 2 commandes, vitesse angulaire et vitesse linéaire
+		La vitesse linéaire est exprimée en mm.s^-1 et la vitesse angulaire en mrad.s^-1
+		
+		| mode (octet 1) 	| 			octet 2 			| 			octet 3 			 |
+		| 		1			| poids forts vitesse lineaire 	| poids faibles vitesse lineaire | 
+
+		| 			octet 4				| 			  octet 5	 		  | 
+		| poids forts vitesse angulaire | poids faibles vitesse angulaire |
+
+	Nucleo -> BeagleBone : 
+		trame de 5 octets. Transmission de la distance parcourue par chaque roue en centième de mm.
+
+		| mode (octet 1) 	| 			octet 2 			| 			octet 3 			 |
+		| 		2			|  poids forts distance droite  |  poids faibles distance droite | 
+
+		| 			octet 4				| 			  octet 5	 		  | 
+		|  poids forts distance gauche  |  poids faibles distance gauche  | 

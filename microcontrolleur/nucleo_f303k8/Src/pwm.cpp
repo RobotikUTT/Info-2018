@@ -43,6 +43,11 @@ void Pwm::set_channel_duty_cycle(uint32_t Channel,
   start(Channel);
 }
 
+void Pwm::set_duty_cycle(uint8_t duty_cycle)
+{
+  set_channel_duty_cycle(TIM_CHANNEL_1,duty_cycle);
+}
+
 void Pwm::start(uint32_t Channel)
 {
   HAL_TIM_PWM_Start(m_timer_ptr,Channel);

@@ -46,10 +46,22 @@
 /* USER CODE BEGIN Includes */
 // #include <stdio.h>
 // #include <iostream>
-#include <cstring>
-#include "serial.h"
-#include "pwm.h"
-#include "can.h"
+// #include <cstring>
+// #include "constantes.h"
+
+// #include "pins.h"
+// #include "parameters.h"
+// #include "Timer.h"
+// #include "brushlessMotor.h"
+// #include "motor.h"
+// #include "block.h"
+// #include "compat.h"
+// #include "protocol.h"
+// #include "control.h"
+// #include "emergency.h"
+
+
+
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
@@ -82,8 +94,6 @@
 
 /* USER CODE BEGIN Private defines */
 
-#define L_ENC_TIM TIM3
-#define R_ENC_TIM TIM2
 #define SERIAL_DELAY 50
 
 /* USER CODE END Private defines */

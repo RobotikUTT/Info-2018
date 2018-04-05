@@ -39,9 +39,21 @@
 #include "main.h"
 #include "stm32f3xx_hal.h"
 
+
 /* USER CODE BEGIN Includes */
-//#include "pwm_driver.h"
-using namespace std;
+
+#include "serial.h"
+#include "pwm.h"
+#include "can.h"
+#include "canSender.h"
+#include "protocol.h"
+#include "control.h"
+#include "emergency.h"
+#include "block.h"
+#include "parameters.h"
+#include "Timer.h"
+#include "compat.h"
+#include "encoder.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -56,7 +68,13 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-// extern "C" {
+Serial g_serial(&huart2);
+Pwm g_right_pwm(&htim16);
+Pwm g_left_pwm(&htim17);
+Can g_can(&hcan,15);
+
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -77,11 +95,19 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 /* USER CODE BEGIN PFP */
 // }
 /* Private function prototypes -----------------------------------------------*/
+void asservLoop(void);
+void asservStatus(void);
+void readOrder(void);
 static void MX_CAN_FilterConfig(void);
+void DWT_CounterEnable(void);
+void blink(void);
+
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-
+Timer asservLoopTimer = Timer(10, &asservLoop);
+Timer asservStatusTimer = Timer(100, &asservStatus);
+Timer blinkTimer = Timer(100, &blink);
 /* USER CODE END 0 */
 
 /**
@@ -124,120 +150,89 @@ int main(void)
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
   MX_CAN_FilterConfig();
-  // char msg[50] = "Hello World!\n";
-  Serial g_serial(&huart2);
-  Pwm g_right_pwm(&htim16);
-  Pwm g_left_pwm(&htim17);
-  Can g_can(&hcan,(uint16_t) 15);
+  char msg[50] = "Hello World!\n";
+  DWT_CounterEnable(); 
   // g_serial.send_string(msg);
 
   // g_serial.print(msg);
 
-  HAL_StatusTypeDef l_encoder_status = HAL_TIM_Encoder_Start_IT(&htim3,TIM_CHANNEL_ALL);
-  HAL_StatusTypeDef r_encoder_status = HAL_TIM_Encoder_Start_IT(&htim2,TIM_CHANNEL_ALL);
-  
+  // HAL_StatusTypeDef l_encoder_status = HAL_TIM_Encoder_Start_IT(&htim3,TIM_CHANNEL_ALL);
+  // HAL_StatusTypeDef r_encoder_status = HAL_TIM_Encoder_Start_IT(&htim2,TIM_CHANNEL_ALL);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  
+  // ControlInit();
   /****PWM tests*************/
   
-  uint8_t duty_cycle = 128;
-
+  // uint8_t duty_cycle = 128;
+  // Serial g_serial(&huart2);
+  
+  // g_right_pwm.set_channel_duty_cycle(TIM_CHANNEL_1, duty_cycle);
+  init_encoders();
   g_right_pwm.set_timer_freq(32000);
-  g_right_pwm.set_channel_duty_cycle(TIM_CHANNEL_1, duty_cycle);
-
   g_left_pwm.set_timer_freq(32000);
-  g_left_pwm.set_channel_duty_cycle(TIM_CHANNEL_1, 64);
+  // g_left_pwm.set_channel_duty_cycle(TIM_CHANNEL_1, 64);
   // HAL_TIM_PWM_Start(&htim16,TIM_CHANNEL_1);
   // HAL_TIM_PWM_Start(&htim17,TIM_CHANNEL_1);
   /*****Communiation test déclarations******/
   // int8_t oneByte = 0;
   // int16_t twoBytes = 0x0000;
   // int32_t fourBytes = 0x7FFFF000;
-  // strcpy(msg,"this is my message");
+  //strcpy(msg,"this is my message\n");
   uint32_t before = HAL_GetTick();
+  // uint8_t counter = 0;
+  asservLoopTimer.Start();
+  asservStatusTimer.Start();  
+  blinkTimer.Start();
+  // Serial g_serial(&huart2);
+  g_serial.print(msg);
+  // g_serial.print("\n");
+  ControlInit();
   while (1)
   {
-
-
-    /*****Encoders tests*******/    
-    // int16_t count_left  = L_ENC_TIM->CNT;
-    // int16_t count_right = R_ENC_TIM->CNT;
-    // if (count_right > 1000 || count_right < -1000)
-    // {
-    //   R_ENC_TIM->CNT = 0;
-    // }
-    // if (count_left > 1000 || count_left < -1000)
-    // {
-    //   L_ENC_TIM->CNT = 0;
-    // }
-    
-    /********Communication tests***************/
-    // g_serial.read();
-    HAL_StatusTypeDef can_status;
-
-
-    if( HAL_GetTick() - before > SERIAL_DELAY)
-    {
-      
-      uint8_t tx_msg[8] = {0x30, 0x31, 0x32, 0x33,
-                            0x34, 0x35, 0x36, 0x37};
-      uint8_t rx_msg[8];
-      can_status = g_can.write(tx_msg);
-      
-      bool is_equal = g_can.read();
-
-
-      if( is_equal)
-      {
-        g_serial.print("same thing\n");
-      }
-      else
-      {
-        g_serial.print("different things\n");
-      }
-      switch(can_status)
-      {
-
-
-        case HAL_OK:
-          // g_serial.print("CAN SENT OK\n");
-          // g_serial.print("\n");
-          g_serial.print((char*)g_can.get_rx_msg());
-          // g_serial.print("\n\n");
-          break;
-
-        case HAL_ERROR:
-          g_serial.print("CAN SENT ERROR\n");
-          break;
-
-        case HAL_BUSY:
-          g_serial.print("CAN SENT BUSY\n");
-          break;
-
-        case HAL_TIMEOUT:
-          // g_serial.print("CAN SENT TIMEOUT\n");
-          break;
-
-        default:
-          g_serial.print("UNKNOWN\n");
-
-      }
-
-      
-      HAL_GPIO_TogglePin(GPIOB, TEST_LED_Pin);
-      before = HAL_GetTick();
-    
+    blinkTimer.Update();
+    if (!flagArduinoConnected) {
+        //SerialSender::SerialSend(SERIAL_INFO, "%s", ARDUINO_ID);
+        readOrder();
+    } else {
+        asservLoopTimer.Update();
+        asservStatusTimer.Update();
+        // asservSerialReadTimer.Update();
     }
-    
-    
+    CanSender::canSendTask();
+
+    // if (HAL_GetTick() - before > 100)
+    // {
+    //   CanSender::canSendTask();
+    //   before = HAL_GetTick();
+    // }
+    // if (g_can.available())
+    // {
+    //   uint8_t* msg;
+    //   msg = g_can.read();
+    //   g_serial.print("can available");
+    //   g_serial.print("\n");
+    //   g_serial.print("data: |");
+    //   for (int8_t i = 0; i < 8 ; i++)
+    //   {
+    //     g_serial.print(msg[i]);
+    //     g_serial.print("|");
+    //   }
+    //   g_serial.print("\n\n");
+    // }
+    // else
+    // {
+    //   g_serial.print("can not available");
+    //   g_serial.print("\n");    
+    // }    
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-  }
+  
   /* USER CODE END 3 */
+    
+    }
 
 }
 
@@ -312,11 +307,19 @@ static void MX_CAN_Init(void)
 {
 
   hcan.Instance = CAN;
+  // config 1Mb/s
+  // hcan.Init.Prescaler = 2;
+  // hcan.Init.Mode = CAN_MODE_NORMAL;
+  // hcan.Init.SJW = CAN_SJW_1TQ;
+  // hcan.Init.BS1 = CAN_BS1_12TQ;
+  // hcan.Init.BS2 = CAN_BS2_3TQ;
+  // config 500kb/s
   hcan.Init.Prescaler = 4;
   hcan.Init.Mode = CAN_MODE_NORMAL;
   hcan.Init.SJW = CAN_SJW_1TQ;
-  hcan.Init.BS1 = CAN_BS1_6TQ;
-  hcan.Init.BS2 = CAN_BS2_1TQ;
+  hcan.Init.BS1 = CAN_BS1_12TQ;
+  hcan.Init.BS2 = CAN_BS2_3TQ;
+
   hcan.Init.TTCM = DISABLE;
   hcan.Init.ABOM = ENABLE;
   hcan.Init.AWUM = DISABLE;
@@ -517,7 +520,7 @@ static void MX_USART2_UART_Init(void)
 {
 
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 57600;
+  huart2.Init.BaudRate = 230400;//57600;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
   huart2.Init.Mode = UART_MODE_TX_RX;
@@ -564,6 +567,37 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+void asservLoop(){
+
+  //Action asserv
+  ComputeEmergency();
+  ComputeIsBlocked();
+  ControlCompute();
+
+    //feedback info: last order executed
+    // That's an ugly way to do it, but not working in another way...
+    // lastReachedID is defined in control.h file
+    // if(lastReachedID != 0) {
+    //     SerialSender::SerialSend(SERIAL_INFO, "%d;", (int)lastReachedID);
+    //     lastReachedID = 0;
+    // }
+
+    //ProtocolAutoSendStatus();
+}
+
+void asservStatus() {
+    readOrder();
+    ProtocolAutoSendStatus();
+}
+
+void readOrder()
+{
+  if (g_can.available() ) 
+  {
+    parseAndExecuteOrder(g_can.read());
+  }
+}
+
 static void MX_CAN_FilterConfig()
 {
   CAN_FilterConfTypeDef CAN_Filter;
@@ -580,26 +614,18 @@ static void MX_CAN_FilterConfig()
   HAL_CAN_ConfigFilter(&hcan, &CAN_Filter);
 }
 
+void DWT_CounterEnable()
+{
+  CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+  DWT->CYCCNT = 0;
+  DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+}
 
+void blink()
+{
+  HAL_GPIO_TogglePin(GPIOB, TEST_LED_Pin);
+}
 
-// void send_PC_UART_DATA(uint32_t value)
-// {
-//   char buf[sizeof(uint32_t)+1];
-//   snprintf(buf, sizeof buf, "%lu", (unsigned long)value);
-//   HAL_UART_Transmit(&huart2, (uint8_t*)buf, strlen(buf), 0xFFFF);
-// }
-
-// void send_msg(uint8_t* msg)
-// {
-//   HAL_UART_Transmit(&huart2, msg, strlen(msg), 0xFFFF );
-// }
-
-// void send_value(uint32_t val)
-// {
-//   uint8_t msg[11];
-//   sprintf(msg,"%lu",(unsigned long)val);
-//   HAL_UART_Transmit(&huart2, msg, strlen(msg), 0xFFFF );
-// }
 /* USER CODE END 4 */
 
 /**
@@ -616,7 +642,7 @@ void _Error_Handler(char *file, int line)
   while(1)
   {
     HAL_GPIO_TogglePin(GPIOB, TEST_LED_Pin);
-    HAL_Delay(1000);
+    HAL_Delay(3000);
   }
   /* USER CODE END Error_Handler_Debug */
 }

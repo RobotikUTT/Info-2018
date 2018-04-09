@@ -34,6 +34,7 @@
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx.h"
 #include "stm32f3xx_it.h"
+#include "can.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -239,6 +240,7 @@ void USART2_IRQHandler(void)
 
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan)
 {
+  g_nb_msg_received ++;
 
   // if (HAL_CAN_Receive_IT(CanHandle, CAN_FIFO0) != HAL_OK)
   // {

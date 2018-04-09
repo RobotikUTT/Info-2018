@@ -10,7 +10,7 @@
 
 
 /** Class Descritpion **/
-
+extern uint16_t g_nb_msg_received;
 class Can
 {
 	private:
@@ -18,6 +18,7 @@ class Can
 		CanTxMsgTypeDef m_tx_msg;
 		CanRxMsgTypeDef m_rx_msg;
 		uint8_t prev_msg[8]= {0,0,0,0,0,0,0,0};
+
 		
 
 		bool check_eq_msgs(uint8_t* msg1, uint8_t* msg2,uint8_t size);
@@ -30,7 +31,7 @@ class Can
 		uint8_t* read();
 		HAL_StatusTypeDef write(uint8_t* msg);
 		// uint8_t* get_rx_msg();
-		bool available();
+		uint16_t available();
 
 };
 

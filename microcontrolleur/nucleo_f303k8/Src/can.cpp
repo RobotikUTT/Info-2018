@@ -4,10 +4,12 @@
 
 /** Constructor **/
 /*****************/
+uint16_t g_nb_msg_received = 0;
 
 Can::Can(CAN_HandleTypeDef* can, uint16_t id)
 {
 	m_can_interface_ptr = can;
+
 
 	// tx message init
 	m_tx_msg.StdId = id;
@@ -47,20 +49,23 @@ HAL_StatusTypeDef Can::write(uint8_t* msg)
 
 uint8_t* Can::read()
 {
-  return m_rx_msg.Data; 
+	g_nb_msg_received -- ;
+ 	return m_rx_msg.Data; 
 }
 
-bool Can::available()
+uint16_t Can::available()
 {
 	HAL_StatusTypeDef _can_status;
  	_can_status = HAL_CAN_Receive_IT(m_can_interface_ptr, CAN_FIFO0);
 
- 	bool _new_msg = !check_eq_msgs(prev_msg,m_rx_msg.Data,8);
-	if (_new_msg)
+ 	// bool _new_msg = !check_eq_msgs(prev_msg,m_rx_msg.Data,8);
+	//if (_new_msg)
+	if ( g_nb_msg_received > 0 )
 	{
 		copy_msg(prev_msg,m_rx_msg.Data,8);
 	}
-	return _new_msg;
+
+	return g_nb_msg_received;
 }
 /** Private Methods **/
 /********************/

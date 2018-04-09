@@ -592,7 +592,7 @@ void asservStatus() {
 
 void readOrder()
 {
-  if (g_can.available() ) 
+  if (g_can.available() > 0 ) 
   {
     parseAndExecuteOrder(g_can.read());
   }

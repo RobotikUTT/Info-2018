@@ -14,10 +14,16 @@
 
 /** Defines **/
 /*************/
+
+#define MAX_CMD_SIZE 30
 class Serial
 {
 	private:
 		UART_HandleTypeDef* m_serial_interface_ptr;
+		char m_cmd[MAX_CMD_SIZE];
+		uint8_t m_cmd_cursor;
+		bool m_cmd_ready;
+
 	public:
 		Serial(UART_HandleTypeDef* serial);
 		~Serial();
@@ -34,7 +40,10 @@ class Serial
 		void print(int16_t value);
 		void print(int8_t value);
 
-		char* read();
+		void read();
+
+		bool cmd_is_ready();
+		char* get_cmd();
 
 		uint16_t available();
 

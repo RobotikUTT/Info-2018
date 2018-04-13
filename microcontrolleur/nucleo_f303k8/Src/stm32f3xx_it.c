@@ -34,12 +34,14 @@
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx.h"
 #include "stm32f3xx_it.h"
+#include "can.h"
 
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern CAN_HandleTypeDef hcan;
 extern UART_HandleTypeDef huart2;
 
 /******************************************************************************/
@@ -193,6 +195,34 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+* @brief This function handles CAN RX0 interrupt.
+*/
+void CAN_RX0_IRQHandler(void)
+{
+  /* USER CODE BEGIN CAN_RX0_IRQn 0 */
+
+  /* USER CODE END CAN_RX0_IRQn 0 */
+  HAL_CAN_IRQHandler(&hcan);
+  /* USER CODE BEGIN CAN_RX0_IRQn 1 */
+
+  /* USER CODE END CAN_RX0_IRQn 1 */
+}
+
+/**
+* @brief This function handles CAN RX1 interrupt.
+*/
+void CAN_RX1_IRQHandler(void)
+{
+  /* USER CODE BEGIN CAN_RX1_IRQn 0 */
+
+  /* USER CODE END CAN_RX1_IRQn 0 */
+  HAL_CAN_IRQHandler(&hcan);
+  /* USER CODE BEGIN CAN_RX1_IRQn 1 */
+
+  /* USER CODE END CAN_RX1_IRQn 1 */
+}
+
+/**
 * @brief This function handles USART2 global interrupt / USART2 wake-up interrupt through EXT line 26.
 */
 void USART2_IRQHandler(void)
@@ -202,11 +232,22 @@ void USART2_IRQHandler(void)
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
-  huart2.RxState = HAL_UART_STATE_READY;
+  // HAL_GPIO_TogglePin(GPIOB, TEST_LED_Pin);
   /* USER CODE END USART2_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
+
+void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan)
+{
+  g_nb_msg_received ++;
+
+  // if (HAL_CAN_Receive_IT(CanHandle, CAN_FIFO0) != HAL_OK)
+  // {
+    // __HAL_CAN_ENABLE_IT(hcan, CAN_IT_FOV0 | CAN_IT_FMP0);  // set interrupt flag for RX FIFO0 if CAN locked
+    // hcan->State = HAL_CAN_STATE_READY;
+  // }
+}
 
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

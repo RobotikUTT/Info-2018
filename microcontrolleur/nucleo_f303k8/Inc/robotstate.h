@@ -9,6 +9,7 @@
 #include "parameters.h"
 #include "encoder.h"
 #include <math.h>
+ #include "serial.h"
 
 #if ENCODER_EVAL == 4
 	#define TICKS_PER_TURN (ENC_RESOLUTION * 4)
@@ -35,6 +36,7 @@ typedef struct wheels_spd {
 
 extern pos_t current_pos;
 extern wheels_spd_t wheels_spd;
+extern Serial g_serial;
 
 void RobotStateInit();
 void RobotStateUpdate();

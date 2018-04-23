@@ -38,9 +38,17 @@ void RobotStateInit() {
 }
 
 void RobotStateSetPos(float x, float y, float angle) {
+	// if ( x == 0.0 && y == 0.0 && angle == 0.0)
+	// {
+	// 	RobotStateInit();
+	// }
+	// else
+	// {
 	current_pos.x = x;
 	current_pos.y = y;
 	current_pos.angle = angle;
+	
+	//}
 	PosUpdateAngle();
 }
 
@@ -50,19 +58,27 @@ void lowPass(wheels_spd_t *old_spd, wheels_spd_t *new_spd, float a) {
 }
 
 void RobotStateUpdate() {
-	static int16_t left_last_ticks = 0, right_last_ticks = 0;
+	static int32_t left_last_ticks = 0, right_last_ticks = 0;
+	static int32_t left_total_ticks = 0, right_total_ticks = 0;
 	static float last_angle = 0;
 	float dd, dl, dr, d_angle;
 	int16_t lt, rt;
 	wheels_spd_t old_wheels_spd = wheels_spd;
 
-	lt = get_left_encoder();
-	rt = get_right_encoder();
+	left_total_ticks  += get_left_encoder();
+	right_total_ticks += get_right_encoder();
 
-	dl = (lt - left_last_ticks)*TICKS_TO_MM_LEFT;
-	dr = (rt - right_last_ticks)*TICKS_TO_MM_RIGHT;
+	// lt = get_left_encoder();
+	// rt = get_right_encoder();
+	encoders_reset();
+
+
+	dl = (left_total_ticks  - left_last_ticks)*TICKS_TO_MM_LEFT;
+	dr = (right_total_ticks - right_last_ticks)*TICKS_TO_MM_RIGHT;
 	wheels_spd.left = dl * HZ;
 	wheels_spd.right = dr * HZ;
+
+	
 
 	// low pass filter on speed
 	lowPass(&old_wheels_spd, &wheels_spd, ALPHA);
@@ -77,9 +93,21 @@ void RobotStateUpdate() {
 	dd = (dr + dl) / 2.0;
 	current_pos.x += dd*cos((current_pos.angle + last_angle)/2.0);
 	current_pos.y += dd*sin((current_pos.angle + last_angle)/2.0);
-
+	// g_serial.print("|");
+	// g_serial.print(lt);
+	// g_serial.print("|");
+	// g_serial.print(rt);
+	// g_serial.print("|");
+	// g_serial.print(left_total_ticks);
+	// g_serial.print("|");
+	// g_serial.print(right_total_ticks);
+	// g_serial.print("|");
+	// g_serial.print(left_last_ticks);
+	// g_serial.print("|");
+	// g_serial.print(right_last_ticks);
+	// g_serial.print("|\n");
 	// prepare la prochaine update
-	right_last_ticks = rt;
-	left_last_ticks = lt;
+	right_last_ticks = right_total_ticks;
+	left_last_ticks =  left_total_ticks;
 	last_angle = current_pos.angle;
 }

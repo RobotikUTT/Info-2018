@@ -58,17 +58,20 @@ float PIDCompute(PID_t *pid, float error) {
 	P_part = pid->P * error;
 	I_part = pid->I * pid->error_sum;
 	D_part = pid->D * error_D;
-	pid->output = P_part + I_part + D_part;
+	pid->output = P_part + I_part + D_part ;
 
 	//nothing happens if pid->output == 0
-	// if (pid->output > 0)
-	// {
-	// 	pid->output += bias;
-	// }
-	// else if (pid->output < 0)
-	// {
-	// 	pid->output -=bias;
-	// }
+	if (pid->output >= 0)
+	{
+		pid->output += bias;
+		//pid->output = map(pid->output,0,255,bias,255);
+
+	}
+	else if (pid->output < 0)
+	{
+		pid->output -=bias;
+		//pid->output = map(pid->output,-255,0,-255,-bias);
+	}
 
 	if (pid->output > 255)
 	{
@@ -80,4 +83,9 @@ float PIDCompute(PID_t *pid, float error) {
 	}
 
 	return pid->output;
+}
+
+long map(long x, long in_min, long in_max, long out_min, long out_max)
+{
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }

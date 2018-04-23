@@ -1,7 +1,5 @@
 #ifndef BLOCK_H
 #define BLOCK_H
-
-//#include <math.h>
 #include "local_math.h"
 
 

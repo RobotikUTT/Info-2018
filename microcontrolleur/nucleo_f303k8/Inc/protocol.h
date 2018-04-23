@@ -133,11 +133,6 @@ class String;
 #define MAX_AUTOSEND_SIZE (24)
 #endif
 
-#define MSB_ONLY_MASK		0x80
-#define IGNORE_MSB_MASK		0x7F
-#define MSB_POSITIVE		0x00
-#define MSB_NEGATIVE		0x80
-
 extern unsigned char flagArduinoConnected;
 extern Serial g_serial;
 void parseAndExecuteOrder(uint8_t* message);

@@ -96,6 +96,7 @@
 
 #define SERIAL_DELAY 50
 
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

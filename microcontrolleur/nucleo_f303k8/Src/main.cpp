@@ -105,8 +105,8 @@ void blink(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-Timer asservLoopTimer = Timer(10, &asservLoop);
-Timer asservStatusTimer = Timer(100, &asservStatus);
+Timer asservLoopTimer = Timer((int) 1000.0*DT, &asservLoop);
+Timer asservStatusTimer = Timer(500, &asservStatus);
 Timer blinkTimer = Timer(100, &blink);
 /* USER CODE END 0 */
 
@@ -150,44 +150,25 @@ int main(void)
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
   MX_CAN_FilterConfig();
-  char msg[50] = "Hello World!\n";
+  
   DWT_CounterEnable(); 
-  // g_serial.send_string(msg);
+#ifdef SERIAL_DEBUG
+  char msg[50] = "Hello World!\n";
+  g_serial.print(msg);
+#endif
 
-  // g_serial.print(msg);
-
-  // HAL_StatusTypeDef l_encoder_status = HAL_TIM_Encoder_Start_IT(&htim3,TIM_CHANNEL_ALL);
-  // HAL_StatusTypeDef r_encoder_status = HAL_TIM_Encoder_Start_IT(&htim2,TIM_CHANNEL_ALL);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  // ControlInit();
-  /****PWM tests*************/
-  
-  // uint8_t duty_cycle = 128;
-  // Serial g_serial(&huart2);
-  
-  // g_right_pwm.set_channel_duty_cycle(TIM_CHANNEL_1, duty_cycle);
   init_encoders();
   g_right_pwm.set_timer_freq(32000);
   g_left_pwm.set_timer_freq(32000);
-  // g_left_pwm.set_channel_duty_cycle(TIM_CHANNEL_1, 64);
-  // HAL_TIM_PWM_Start(&htim16,TIM_CHANNEL_1);
-  // HAL_TIM_PWM_Start(&htim17,TIM_CHANNEL_1);
-  /*****Communiation test déclarations******/
-  // int8_t oneByte = 0;
-  // int16_t twoBytes = 0x0000;
-  // int32_t fourBytes = 0x7FFFF000;
-  //strcpy(msg,"this is my message\n");
+
   uint32_t before = HAL_GetTick();
-  // uint8_t counter = 0;
   asservLoopTimer.Start();
   asservStatusTimer.Start();  
   blinkTimer.Start();
-  // Serial g_serial(&huart2);
-  g_serial.print(msg);
-  // g_serial.print("\n");
   ControlInit();
   while (1)
   {
@@ -202,30 +183,17 @@ int main(void)
     }
     CanSender::canSendTask();
 
-    // if (HAL_GetTick() - before > 100)
-    // {
-    //   CanSender::canSendTask();
-    //   before = HAL_GetTick();
-    // }
-    // if (g_can.available())
-    // {
-    //   uint8_t* msg;
-    //   msg = g_can.read();
-    //   g_serial.print("can available");
-    //   g_serial.print("\n");
-    //   g_serial.print("data: |");
-    //   for (int8_t i = 0; i < 8 ; i++)
-    //   {
-    //     g_serial.print(msg[i]);
-    //     g_serial.print("|");
-    //   }
-    //   g_serial.print("\n\n");
-    // }
-    // else
-    // {
-    //   g_serial.print("can not available");
-    //   g_serial.print("\n");    
-    // }    
+#ifdef SERIAL_DEBUG
+    if ( HAL_GetTick() - before > SERIAL_DELAY)
+    {
+      g_serial.print(get_left_encoder());
+      g_serial.print("      ");
+      g_serial.print(get_right_encoder());
+      g_serial.print("\n");
+      before = HAL_GetTick();
+    }
+#endif
+    
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
@@ -345,7 +313,7 @@ static void MX_TIM2_Init(void)
   TIM_MasterConfigTypeDef sMasterConfig;
 
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 0;
+  htim2.Init.Prescaler = 1;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 0xFFFF;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -355,7 +323,7 @@ static void MX_TIM2_Init(void)
   sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
   sConfig.IC1Filter = 0;
-  sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
+  sConfig.IC2Polarity = TIM_ICPOLARITY_FALLING;
   sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
   sConfig.IC2Filter = 0;
@@ -381,12 +349,12 @@ static void MX_TIM3_Init(void)
   TIM_MasterConfigTypeDef sMasterConfig;
 
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 0;
+  htim3.Init.Prescaler = 1;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 0;
+  htim3.Init.Period = 0xFFFF;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
+  sConfig.EncoderMode = TIM_ENCODERMODE_TI12;
   sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC1Prescaler = TIM_ICPSC_DIV1;

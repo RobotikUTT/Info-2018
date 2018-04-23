@@ -3,24 +3,24 @@
 
 #include "stm32f3xx_hal.h"
 
-#define ENC_R_A_Pin GPIO_PIN_0
-#define ENC_R_A_GPIO_Port GPIOA
-#define ENC_R_B_Pin GPIO_PIN_1
-#define ENC_R_B_GPIO_Port GPIOA
-#define ENC_L_B_Pin GPIO_PIN_4
-#define ENC_L_B_GPIO_Port GPIOA
-#define ENC_L_A_Pin GPIO_PIN_6
-#define ENC_L_A_GPIO_Port GPIOA
-#define MOT_L_EN_Pin GPIO_PIN_7
-#define MOT_L_EN_GPIO_Port GPIOA
-#define TEST_LED_Pin GPIO_PIN_3
-#define TEST_LED_GPIO_Port GPIOB
-#define MOT_R_EN_Pin GPIO_PIN_4
-#define MOT_R_EN_GPIO_Port GPIOB
-#define MOT_R_DIR_Pin GPIO_PIN_6
-#define MOT_R_DIR_GPIO_Port GPIOB
-#define MOT_L_DIR_Pin GPIO_PIN_7
-#define MOT_L_DIR_GPIO_Port GPIOB
+// #define ENC_R_A_Pin GPIO_PIN_0
+// #define ENC_R_A_GPIO_Port GPIOA
+// #define ENC_R_B_Pin GPIO_PIN_1
+// #define ENC_R_B_GPIO_Port GPIOA
+// #define ENC_L_B_Pin GPIO_PIN_4
+// #define ENC_L_B_GPIO_Port GPIOA
+// #define ENC_L_A_Pin GPIO_PIN_6
+// #define ENC_L_A_GPIO_Port GPIOA
+// #define MOT_L_EN_Pin GPIO_PIN_7
+// #define MOT_L_EN_GPIO_Port GPIOA
+// #define TEST_LED_Pin GPIO_PIN_3
+// #define TEST_LED_GPIO_Port GPIOB
+// #define MOT_R_EN_Pin GPIO_PIN_4
+// #define MOT_R_EN_GPIO_Port GPIOB
+// #define MOT_R_DIR_Pin GPIO_PIN_6
+// #define MOT_R_DIR_GPIO_Port GPIOB
+// #define MOT_L_DIR_Pin GPIO_PIN_7
+// #define MOT_L_DIR_GPIO_Port GPIOB
 
 #define HIGH 	GPIO_PIN_SET
 #define LOW 	GPIO_PIN_RESET

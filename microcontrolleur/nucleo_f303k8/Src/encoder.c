@@ -17,10 +17,6 @@
 
 void init_encoders(void)
 {
-	// HAL_TIM_PWM_Start(&htim16,TIM_CHANNEL_1);
- //  	HAL_TIM_PWM_Start(&htim17,TIM_CHANNEL_1);
-  // HAL_StatusTypeDef l_encoder_status = HAL_TIM_Encoder_Start_IT(&htim3,TIM_CHANNEL_ALL);
-  // HAL_StatusTypeDef r_encoder_status = HAL_TIM_Encoder_Start_IT(&htim2,TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start_IT(&htim3,TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start_IT(&htim2,TIM_CHANNEL_ALL);
 }
@@ -35,10 +31,10 @@ void right_encoder_reset(void) {
 
 int16_t get_left_encoder(void)
 {
-	return L_ENC_TIM->CNT;
+	return (int16_t)L_ENC_TIM->CNT;
 }
 
 int16_t get_right_encoder(void)
 {
-	return R_ENC_TIM->CNT;
+	return (int16_t)R_ENC_TIM->CNT;
 }

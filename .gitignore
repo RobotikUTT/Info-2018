@@ -8,3 +8,4 @@ microcontrolleur/nucleo_f303k8/User/
 *.ld
 *.mxproject
 *.iml
+*.xml

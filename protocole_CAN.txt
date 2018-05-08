@@ -10,18 +10,25 @@ Contrôle moteur
 	BeagleBone -> Nucleo: 
 		trame de 5 octets. Transmission de 2 commandes, vitesse angulaire et vitesse linéaire
 		La vitesse linéaire est exprimée en mm.s^-1 et la vitesse angulaire en mrad.s^-1
-		
-		| mode (octet 1) 	| 			octet 2 			| 			octet 3 			 |
-		| 		1			| poids forts vitesse lineaire 	| poids faibles vitesse lineaire | 
-
+		______________________________________________________________________________________
+		| 	mode (octet 1) 	| 			octet 2 			| 			octet 3 			 |
+		|___________________|_______________________________|________________________________|
+		| 		  1			| poids forts vitesse lineaire 	| poids faibles vitesse lineaire |
+		|___________________|_______________________________|________________________________| 
+		___________________________________________________________________
 		| 			octet 4				| 			  octet 5	 		  | 
+		|_______________________________|_________________________________|
 		| poids forts vitesse angulaire | poids faibles vitesse angulaire |
-
+		|_______________________________|_________________________________|
 	Nucleo -> BeagleBone : 
 		trame de 5 octets. Transmission de la distance parcourue par chaque roue en centième de mm.
-
+		______________________________________________________________________________________
 		| mode (octet 1) 	| 			octet 2 			| 			octet 3 			 |
-		| 		2			|  poids forts distance droite  |  poids faibles distance droite | 
-
-		| 			octet 4				| 			  octet 5	 		  | 
-		|  poids forts distance gauche  |  poids faibles distance gauche  | 
+		|___________________|_______________________________|________________________________|
+		| 		  2			|  poids forts distance droite  |  poids faibles distance droite |
+		|___________________|_______________________________|________________________________| 
+		___________________________________________________________________
+		| 			octet 4				| 			  octet 5	 		  |
+		|_______________________________|_________________________________| 
+		|  poids forts distance gauche  |  poids faibles distance gauche  |
+		|_______________________________|_________________________________| 

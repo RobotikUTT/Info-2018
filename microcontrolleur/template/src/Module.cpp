@@ -16,7 +16,7 @@ Module::~Module(){
 }
 
 void Module::CreateSingleton(){
-  if (module_instance_ptr == 0){
+  if (g_module_instance_ptr == 0){
     g_module_instance_ptr = new Module();
   }
 }

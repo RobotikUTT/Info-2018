@@ -16,7 +16,7 @@ Watcher::~Watcher(){
 }
 
 void Watcher::CreateSingleton(){
-  if (watcher_instance_ptr == 0){
+  if (g_watcher_instance_ptr == 0){
     g_watcher_instance_ptr = new Watcher();
   }
 }

@@ -83,7 +83,7 @@ LE MAKEFILE:
 des fichiers compiler.
 
   Normalement, pas besoin de le modifier pour la compilation sur l'ordinateur.
-Il faudra l'adapter pour le compiler et l'uploader sur les cartes (ou passé par
+Il faudra l'adapter pour le compiler et l'uploader sur les cartes (ou passer par
 un autre système).
 
 --------------------------------------------------------------------------------

@@ -1,0 +1,131 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage[french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{eurosym}
+\usepackage[squaren, Gray, cdot]{SIunits}
+\usepackage{pdfpages}
+\usepackage{lscape}
+\usepackage{hyperref}
+%\usepackage{tikz}
+%\usetikzlibrary{calc,trees,positioning,arrows,chains,shapes.geometric,	decorations.pathreplacing,decorations.pathmorphing,shapes,	matrix,shapes.symbols}
+
+\geometry{a4paper,margin=1.5in}
+
+
+\title{Description du code bas niveau du robot principal de la Coupe de Robotique 2018 (aussi appelé \it{Kévin})}
+\author{Thomas Jeantet (Apache)}
+\date{}
+
+
+%\usepackage{wallpaper}
+\begin{document}
+	%\graphicspath{{images/}}
+	%\ThisULCornerWallPaper{1}{backgroundlogo.png}
+	%\AddToShipoutPicture*{\BackgroundPic}
+	%{\renewcommand{\arraystretch}{1.5}
+	%\renewcommand{\tabcolsep}{0.2cm}
+	
+	
+	% \begin{tabular}[c]{|c|c|}
+	% 	\hline
+	% 	Thomas Jeantet & 	Branche: SRT	 \\
+	% 	Responsable pédagogique UTT: & Année: 2016\\
+	% 	Michel Doussot & Semestre: Automne \\
+	% 	\hline
+	% \end{tabular}
+	% \linebreak
+	% {\let\newpage\relax\maketitle}
+	%\linebreak
+	\maketitle
+	
+	
+	\begin{abstract}
+		Ce document présente 3 codes différents qui ont été dévellopés pour le robot principal du club Robotik de l'UTT pour la coupe de France de Robotique 2018. Nous décrirons le code d'asservissement, développé pour Nucleo F303K8, le code de la carte actionneurs, développé pour Arduino Mega, et enfin les codes des émetteurs et récepteurs Zigbee, pour Arduino Nano.
+	\end{abstract}
+	
+	\tableofcontents
+	\newpage
+	
+		\section*{Remerciements}
+			Je tiens tout d'abord à remercier l'équipe de l'UTC de 2018 pour nous avoir autorisé à utiliser leur code d'asservissement comme base. Nous le détaillerons plus loin, le code qui nous a servi de base a été téléchargé depuis le github d'UTCoupe en février 2018. \\
+			Je remercie également l'équipe qui a rédigé ce code, celle d'UTCoupe 2013. \\
+			Je voudrais remercier Willy Maine, enseignant à l'UTT, qui a sû guider la conception mécanique en un très court délai.
+			Je remercie les courageux qui ont passé 10 semaines à bosser sur le code du robot tous les jours quasiment sans interruption, à savoir Alexis et Quentin. Sans vous, faire marcher ce code aurait été beaucoup plus lent et difficile pour le moral.\\
+			Enfin, je tiens à remercier toute l'équipe de Robotik de cette année pour le travail accompli, à savoir Baptiste, Samuel, Nina, Clara, Clement-Joseph et Romain. Grâce à vous notre club a réalisé un score qu'il n'avait pas atteint depuis de nombreuses années, espérons qu'il en continuera ainsi. 
+	\newpage
+	\part{Asservissement}
+		Le programme d'asservissement permet d'avoir une interface simple du point de vue de l'intelligence artificielle pour contrôler le déplacement du robot. Il mémorise et met à jour la position du robot, et commande les moteurs en fonction des ordres reçus via le protocole de communication. Ce code s'execute sur la carte d'asservissement, la STM32. Dans cette partie, nous aborderons de manière exhaustive les fonctionnalités du programme, son archihtecture, les algorithmes de positionnement et de déplacement, la méthode pour régler l'asservissement et enfin les problèmes que nous avons pu découvrir mais qui n'ont pas été corrigés.
+
+		\section{Fonctionnalités}
+
+			\subsection{Positionnement}
+				Le positionnement est crucial pour le déplacement. En effet, si le robot ne connait pas sa position, il est incapable de calculer la trajectoire à prendre pour atteindre un point. 
+				
+				\subsubsection{Variables de positionnement}
+					Pour caractériser la position de notre robot sur la table, on utilise 3 variables: Les positions cartésiennes du robot, $x$ et $y$, mais aussi son orientation, $\theta$, l'angle entre une direction de référence et la direction du robot. Le choix de la direction de cette référence peut être arbitraire, et ne dépend pas du code de l'asservissement. C'est dans la logique de l'intelligence artificielle que cette référence est décidée. Nous verrons plus tard comment l'intelligence artificielle communique avec l'asservissement. Dorénavant, quand nous parlerons de la position du robot, cela désignera les 3 variables $(x,y,\theta)$.
+
+
+				\subsubsection{Roues Codeuses}
+				Notre asservissement utilise un positionnement pas roues codeuses. Ce sont les fines roues aux extrémités gauche et droite du robot. Le capteur qui y est fixé envoie une information à la carte d'asservissement à chaque rotation significative de la roue. Cette information permet de savoir de quelle distance chaque roue avance. Ainsi, en connaissant la position cartésienne du robot et son orientation, on peut utiliser l'information des roues codeuses pour mettre à jour ces 3 paramètres de positionnement.
+			\subsection{Déplacement}
+			\subsection{Protocole de communication}
+
+		\section{Architecture du code}
+
+		\section{Description des algorithmes}
+			\subsection{Fonctionnement par goals}
+			\subsection{Aller d'un point à un autre}
+
+		\section{Réglages}
+			
+			\subsection{Décodeurs à Quadrature}
+			\subsection{PID(s)}
+			\subsection{Comportements}
+				\subsubsection{Fréquence d'asservissement}
+				\subsubsection{Vitesse max et accélération max}
+				\subsubsection{entraxe}
+				\subsubsection{Rayon des roues encodeuses}
+				\subsubsection{Erreurs d'angle et de positionnement}
+				\subsubsection{Garder le dernier goal}
+				\subsection{Asservissement en position ou en vitesse}
+
+		\section{Problèmes connus}
+			
+			\subsection{Démarage à chaud (hotstart)}
+			\subsection{Recommandations en cas de problème random, soudain et chelou}
+				Généralement ces problèmes ne sont pas dûs au code, mais à une modification exterieure. Dans ce cas il y a une check-list:
+				\begin{itemize}
+					\item Reset la STM
+					\item nettoyer les roues motrices et codeuses
+					\item vérifier les branchements des codeuses
+					\item vérifier la fixation des codeuses (les vis doivent être sérées mais pas trop pour que les codeuses suspendues puissent monter et descendre)
+				\end{itemize}
+
+			\subsection{Compilation sous ubuntu 18.04}
+	\newpage
+	\part{Carte Actionneurs}
+	\setcounter{section}{0}
+		\section{Fonctionnalités}
+			\subsection{Moteurs CC}
+			\subsection{AX12}
+			\subsection{Sonars}
+			\subsection{Moteurs Pas à Pas}
+
+		\section{}
+	\newpage
+	\part{Communication Zigbee}
+	\setcounter{section}{0}
+		\section{Emetteur}
+			\subsection{}
+		\section{Récepteur}
+
+	\part{Protocole de Communication}
+			
+	% {\renewcommand{\arraystretch}{2.5}
+	% 	\renewcommand{\tabcolsep}{0.2cm}
+		
+	
+	
+\end{document}

@@ -56,7 +56,34 @@
 			Enfin, je tiens à remercier toute l'équipe de Robotik de cette année pour le travail accompli, à savoir Baptiste, Samuel, Nina, Clara, Clement-Joseph et Romain. Grâce à vous notre club a réalisé un score qu'il n'avait pas atteint depuis de nombreuses années, espérons qu'il en continuera ainsi. 
 	\newpage
 	\part{Asservissement}
-		Le programme d'asservissement permet d'avoir une interface simple du point de vue de l'intelligence artificielle pour contrôler le déplacement du robot. Il mémorise et met à jour la position du robot, et commande les moteurs en fonction des ordres reçus via le protocole de communication. Ce code s'execute sur la carte d'asservissement, la STM32. Dans cette partie, nous aborderons de manière exhaustive les fonctionnalités du programme, son archihtecture, les algorithmes de positionnement et de déplacement, la méthode pour régler l'asservissement et enfin les problèmes que nous avons pu découvrir mais qui n'ont pas été corrigés.
+		Le programme d'asservissement permet d'avoir une interface simple du point de vue de l'intelligence artificielle pour contrôler le déplacement du robot. Il mémorise et met à jour la position du robot, et commande les moteurs en fonction des ordres reçus via le protocole de communication. Ce code s'execute sur la carte d'asservissement, la STM32. Dans cette partie, nous aborderons de manière exhaustive les fonctionnalités du programme, son architecture, les algorithmes de positionnement et de déplacement, la méthode pour régler l'asservissement et enfin les problèmes que nous avons pu découvrir mais qui n'ont pas été corrigés. 
+		
+		installation toolchain:
+
+		installation gcc-arm-none-eabi:
+		https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
+		download la dernière version pour linux 64bits
+		tar xjf gcc-arm-none-eabi-7-2018-q2-update.tar.bz2
+		sudo cp -R gcc-arm-none-eabi-7-2018-q2-update/* /usr
+
+		installation stlink:
+		sudo apt-get install git cmake libusb-1.0-0-dev gcc 
+		git clone http://github.com/texane/stlink
+		cd stlink
+		make release
+		sudo cp -r etc/udev/rules.d/ /etc/udev/
+		cd ..
+		sudo mv stlink/* /opt
+
+		sudo udevadm control --reload-rules
+		sudo udevadm trigger
+
+		cd path/to/project/STM32/
+		export LD_LIBRARY_PATH=/usr/local/lib
+		OU
+		ecrire ``export LD_LIBRARY_PATH=/usr/local/lib'' dans .bashrc
+
+		make upload
 
 		\section{Fonctionnalités}
 
@@ -69,7 +96,13 @@
 
 				\subsubsection{Roues Codeuses}
 				Notre asservissement utilise un positionnement pas roues codeuses. Ce sont les fines roues aux extrémités gauche et droite du robot. Le capteur qui y est fixé envoie une information à la carte d'asservissement à chaque rotation significative de la roue. Cette information permet de savoir de quelle distance chaque roue avance. Ainsi, en connaissant la position cartésienne du robot et son orientation, on peut utiliser l'information des roues codeuses pour mettre à jour ces 3 paramètres de positionnement.
+
+				\begin{figure}[h]
+					\centering
+					\includegraphics[scale = 0.6]{images/quadrature.jpeg}
+				\end{figure}
 			\subsection{Déplacement}
+			Le robot doit pouvoir aller à un point précis de la table de j
 			\subsection{Protocole de communication}
 
 		\section{Architecture du code}
